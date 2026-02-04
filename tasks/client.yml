@@ -1,0 +1,8 @@
+---
+- name: Openvpn client config
+  ansible.builtin.template:
+    src: client.conf.j2
+    dest: "{{ openvpn_config_path }}.conf"
+    owner: root
+    #group:
+    mode: 640

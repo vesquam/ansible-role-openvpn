@@ -1,0 +1,78 @@
+---
+- debug:
+    msg: "{{ openvpn_config_pki_path }}"
+- name: Create PKI holding directory
+  ansible.builtin.file:
+    state: directory
+    owner: root
+    group: root
+    recurse: true
+    mode: "0770"
+    path: "{{ openvpn_config_pki_path }}"
+
+
+- name: Init client list
+  set_fact:
+    openvpn_clients_lst: []
+    openvpn_servers_lst: []
+- name: Set client list
+  # TODO: Need to find a way to filter by vpn name as well
+  set_fact:
+    openvpn_clients_lst: "{{ openvpn_clients_lst + [item] }}"
+  with_items: "{{ groups['openvpn']}}"
+  when: hostvars[item]['openvpn_role'] == 'client'
+- name: Set server list
+  # TODO: Need to find a way to filter by vpn name as well
+  set_fact:
+    openvpn_servers_lst: "{{ openvpn_servers_lst + [item] }}"
+  with_items: "{{ groups['openvpn']}}"
+  when: hostvars[item]['openvpn_role'] == 'server'
+- debug:
+    msg: 
+      - "Clients: {{openvpn_clients_lst}}"
+      - "Server: {{openvpn_servers_lst}}"
+
+- name: Easyrsa init-pki
+  ansible.builtin.command:
+    cmd: "{{ openvpn_easyrsa_bin_path }} init-pki"
+    chdir: "{{ openvpn_config_pki_path }}"
+    creates: "{{ openvpn_config_pki_path }}/pki"
+
+- name: Easy-rsa build-ca
+  ansible.builtin.command:
+    cmd: "{{ openvpn_easyrsa_bin_path }} build-ca nopass"
+    chdir: "{{ openvpn_config_pki_path }}"
+    creates: "{{ openvpn_config_pki_path }}/pki/ca.crt"
+  environment:
+    EASYRSA_BATCH:  "yes"
+    EASYRSA_DN:     "cn_only"
+    EASYRSA_REQ_CN: "{{openvpn_name}}"
+
+- name: Easyrsa build-server-full server nopass
+  ansible.builtin.command:
+    cmd: "{{ openvpn_easyrsa_bin_path }} build-server-full server-{{ item }} nopass"
+    chdir: "{{ openvpn_config_pki_path }}"
+    creates: "{{ openvpn_config_pki_path }}/pki/issued/server-{{item}}.crt"
+  environment:
+    EASYRSA_BATCH: "yes"
+  with_items: "{{ openvpn_servers_lst }}"
+
+- name: Easyrsa build-client-full client nopass
+  ansible.builtin.command:
+    cmd: "{{ openvpn_easyrsa_bin_path }} build-client-full client-{{ item }} nopass"
+    chdir: "{{ openvpn_config_pki_path }}"
+    creates: "{{ openvpn_config_pki_path }}/pki/issued/client-{{ item }}.crt"
+  environment:
+    EASYRSA_BATCH: "yes"
+  with_items: "{{ openvpn_clients_lst }}"
+
+- name: Easyrsa gen-crl
+  ansible.builtin.command:
+    cmd: "{{ openvpn_easyrsa_bin_path }} gen-crl"
+    chdir: "{{ openvpn_config_pki_path }}"
+    creates: "{{ openvpn_config_pki_path }}/pki/crl.pem"
+
+- name: Openvpn --genkey --secret {{ openvpn_config_pki_path }}/pki/ta.key"
+  ansible.builtin.command:
+    cmd: openvpn --genkey --secret {{ openvpn_config_pki_path }}/pki/ta.key
+    creates: "{{ openvpn_config_pki_path }}/pki/ta.key"

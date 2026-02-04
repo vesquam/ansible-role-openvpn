@@ -1,0 +1,13 @@
+---
+openvpn_name: "openvpn"
+openvpn_role: "client"
+openvpn_pki_manager: false
+
+openvpn_conf_proto: "udp"
+openvpn_conf_dev: "tun"
+openvpn_conf_downgrade_priv: false
+openvpn_conf_user: "openvpn"
+openvpn_conf_group: "openvpn"
+
+openvpn_conf_client_remote_host: ""
+openvpn_conf_client_remote_port: 1194

@@ -1,0 +1,26 @@
+---
+- name: Test variables
+  ansible.builtin.debug:
+    msg: 
+      - "pkgs: {{openvpn_pkgs}}"
+      - "config path: {{openvpn_config_path}}"
+      - "config pki path: {{openvpn_config_pki_path}}"
+
+- name: Install required packages
+  ansible.builtin.package:
+    name: "{{ openvpn_pkgs }}"
+    state: present
+
+- name: PKI manager
+  ansible.builtin.include_tasks:
+    file: pki_manager.yml
+  when: openvpn_pki_manager
+
+- name: Host configuration
+  ansible.builtin.include_tasks:
+    file: "{{item}}.yml"
+  with_items:
+    - "server"
+    - "client"
+  when: item in openvpn_role
+
