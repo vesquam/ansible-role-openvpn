@@ -88,28 +88,70 @@
 
 - name: Filelist init
   ansible.builtin.set_fact:
-    server_filelist: []
+    dir_dist_list: []
+    dist_filelist: []
+
+- name: Client Generate filelist to copy (ta/ca/dh)
+  ansible.builtin.set_fact:
+    dist_filelist: "{{ dist_filelist + [{
+      'host': item.0,
+      'src': openvpn_config_pki_path+'/'+item.1,
+      'dest': openvpn_config_pki_dist_path+'/'+openvpn_pki_client_prefix+item.0+'/'+(item.1 | basename )
+      }] }}"
+  loop: "{{openvpn_clients_lst | product(['pki/ta.key','pki/ca.crt']) | list}}"
+
+- name: Client Generate filelist to copy (crt/key)
+  ansible.builtin.set_fact:
+    dist_filelist: "{{ dist_filelist + [{
+      'host': item.0,
+      'src': openvpn_config_pki_path+'/pki/'+item.1+'/'+openvpn_pki_client_prefix+item.0+'.'+('crt' if item.1 == \"issued\" else 'key' ),
+      'dest': openvpn_config_pki_dist_path+'/'+openvpn_pki_client_prefix+item.0+'/'
+      }] }}"
+  loop: "{{openvpn_clients_lst | product(['issued','private']) | list}}"
 
 - name: Server Generate filelist to copy (ta/ca/dh)
   ansible.builtin.set_fact:
-    server_filelist: "{{ server_filelist + [{
+    dist_filelist: "{{ dist_filelist + [{
       'host': item.0,
       'src': openvpn_config_pki_path+'/'+item.1,
-      'dest': openvpn_config_pki_dist_path+'/server-'+item.0+'/'+(item.1 | basename )
+      'dest': openvpn_config_pki_dist_path+'/'+openvpn_pki_server_prefix+item.0+'/'+(item.1 | basename )
       }] }}"
-  loop: "{{openvpn_servers_lst | product(['ta.key','pki/ca.crt', 'pki/dh.pem']) | list}}"
+  loop: "{{openvpn_servers_lst | product(['pki/ta.key','pki/ca.crt', 'pki/dh.pem']) | list}}"
 
 - name: Server Generate filelist to copy (crt/key)
   ansible.builtin.set_fact:
-    server_filelist: "{{ server_filelist + [{
+    dist_filelist: "{{ dist_filelist + [{
       'host': item.0,
-      'src': openvpn_config_pki_path+'/pki/'+item.1+'/server-'+item.0+'.'+('crt' if item.1 == \"issued\" else 'key' ),
-      'dest': openvpn_config_pki_dist_path+'/server-'+item.0+'/'
+      'src': openvpn_config_pki_path+'/pki/'+item.1+'/'+openvpn_pki_server_prefix+item.0+'.'+('crt' if item.1 == \"issued\" else 'key' ),
+      'dest': openvpn_config_pki_dist_path+'/'+openvpn_pki_server_prefix+item.0+'/'
       }] }}"
   loop: "{{openvpn_servers_lst | product(['issued','private']) | list}}"
 
-- debug:
-    msg: "{{server_filelist}}"
+- name: Distinct dist path to creates 1/2
+  ansible.builtin.set_fact:
+    dir_dist_list: "{{ dir_dist_list + [ item | dirname ] }}"
+  loop: "{{dist_filelist | map(attribute='dest') }}"
+
+- name: Distinct dist path to creates 2/2
+  ansible.builtin.set_fact:
+    dir_dist_list: "{{ dir_dist_list | unique() }}"
+
+- name: Create dist paths
+  ansible.builtin.file:
+    state: directory
+    owner: root
+    group: root
+    recurse: true
+    mode: "0770"
+    path: "{{ item }}"
+  loop: "{{ dir_dist_list }}"
+
+- name: Copy the files for distribution
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ item.src }}"
+    dest:  "{{ item.dest }}"
+  with_items: "{{ dist_filelist }}"
 
 # - name: Server dist
 #   ansible.builtin.debug:

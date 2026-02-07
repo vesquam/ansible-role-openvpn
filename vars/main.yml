@@ -13,4 +13,7 @@ openvpn_config_path: "{{ _openvpn_etc ~ (openvpn_name ~ '-' if openvpn_name is d
 openvpn_config_pki_path: "{{ _openvpn_etc ~ '/pki/' ~ (openvpn_name if openvpn_name is defined and openvpn_name|length > 0 else '') }}"
 openvpn_config_pki_dist_path: "{{ openvpn_config_pki_path }}/dist"
 
+openvpn_pki_client_prefix: "client-"
+openvpn_pki_server_prefix: "server-"
+
 openvpn_easyrsa_bin_path: "/usr/share/easy-rsa/3/easyrsa"
