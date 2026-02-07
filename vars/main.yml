@@ -1,5 +1,5 @@
 ---
-_openvpn_etc: '/etc/openvpn/'
+_openvpn_etc: '/etc/openvpn'
 _openvpn_pkgs:
   server:
     - openvpn
@@ -10,6 +10,7 @@ _openvpn_pkgs:
 openvpn_pkgs: "{{ _openvpn_pkgs[openvpn_role] + ( _openvpn_pkgs['pki_master'] if openvpn_pki_manager else [] ) }}"
 
 openvpn_config_path: "{{ _openvpn_etc ~ (openvpn_name ~ '-' if openvpn_name is defined and openvpn_name|length > 0 else '') ~ openvpn_role}}"
-openvpn_config_pki_path: "{{ _openvpn_etc ~ '/pki/' ~ (openvpn_name ~ '/' if openvpn_name is defined and openvpn_name|length > 0 else '') }}"
+openvpn_config_pki_path: "{{ _openvpn_etc ~ '/pki/' ~ (openvpn_name if openvpn_name is defined and openvpn_name|length > 0 else '') }}"
+openvpn_config_pki_dist_path: "{{ openvpn_config_pki_path }}/dist"
 
 openvpn_easyrsa_bin_path: "/usr/share/easy-rsa/3/easyrsa"

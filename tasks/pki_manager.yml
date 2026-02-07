@@ -8,7 +8,10 @@
     group: root
     recurse: true
     mode: "0770"
-    path: "{{ openvpn_config_pki_path }}"
+    path: "{{ item }}"
+  with_items:
+    - "{{ openvpn_config_pki_path }}"
+    - "{{ openvpn_config_pki_path }}/dist"
 
 
 - name: Init client list
@@ -48,6 +51,12 @@
     EASYRSA_DN:     "cn_only"
     EASYRSA_REQ_CN: "{{openvpn_name}}"
 
+- name: Easyrsa gen-dh
+  ansible.builtin.command:
+    cmd: "{{ openvpn_easyrsa_bin_path }} gen-dh"
+    chdir: "{{ openvpn_config_pki_path }}"
+    creates: "{{ openvpn_config_pki_path }}/pki/dh.pem"
+
 - name: Easyrsa build-server-full server nopass
   ansible.builtin.command:
     cmd: "{{ openvpn_easyrsa_bin_path }} build-server-full server-{{ item }} nopass"
@@ -76,3 +85,38 @@
   ansible.builtin.command:
     cmd: openvpn --genkey --secret {{ openvpn_config_pki_path }}/pki/ta.key
     creates: "{{ openvpn_config_pki_path }}/pki/ta.key"
+
+- name: Filelist init
+  ansible.builtin.set_fact:
+    server_filelist: []
+
+- name: Server Generate filelist to copy (ta/ca/dh)
+  ansible.builtin.set_fact:
+    server_filelist: "{{ server_filelist + [{
+      'host': item.0,
+      'src': openvpn_config_pki_path+'/'+item.1,
+      'dest': openvpn_config_pki_dist_path+'/server-'+item.0+'/'+(item.1 | basename )
+      }] }}"
+  loop: "{{openvpn_servers_lst | product(['ta.key','pki/ca.crt', 'pki/dh.pem']) | list}}"
+
+- name: Server Generate filelist to copy (crt/key)
+  ansible.builtin.set_fact:
+    server_filelist: "{{ server_filelist + [{
+      'host': item.0,
+      'src': openvpn_config_pki_path+'/pki/'+item.1+'/server-'+item.0+'.'+('crt' if item.1 == \"issued\" else 'key' ),
+      'dest': openvpn_config_pki_dist_path+'/server-'+item.0+'/'
+      }] }}"
+  loop: "{{openvpn_servers_lst | product(['issued','private']) | list}}"
+
+- debug:
+    msg: "{{server_filelist}}"
+
+# - name: Server dist
+#   ansible.builtin.debug:
+#     msg: "cp {{openvpn_config_pki_path}}/{{item.1}} {{openvpn_config_pki_dist_path}}/{{item.0}}/{{ item.1 | basename }}"
+#   loop: "{{openvpn_servers_lst | product(['ta.key','pki/ca.crt', 'pki/dh.pem']) | list}}"
+
+# - name: Server dist cert/key
+#   ansible.builtin.debug:
+#     msg: "cp {{openvpn_config_pki_path}}/pki/{{item.1}}/server-{{ item.0 }}.{{ 'crt' if item.1 == \"issued\" else 'key' }} {{openvpn_config_pki_dist_path}}/{{item.0}}/"
+#   loop: "{{openvpn_servers_lst | product(['issued','private']) | list}}"
