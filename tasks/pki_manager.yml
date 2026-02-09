@@ -153,6 +153,20 @@
     dest:  "{{ item.dest }}"
   with_items: "{{ dist_filelist }}"
 
+- name: Archive dist
+  community.general.archive:
+    path: "{{ item }}/../"
+    dest: "{{ item| dirname }}/{{ item | basename }}.tar.gz"
+    format: "gz"
+  with_items: "{{ dir_dist_list }}"
+
+- name: Copy 
+  ansible.builtin.fetch:
+    src: "{{ item| dirname }}/{{ item | basename }}.tar.gz"
+    dest: /tmp/
+    flat: true
+  with_items: "{{ dir_dist_list }}"
+
 # - name: Server dist
 #   ansible.builtin.debug:
 #     msg: "cp {{openvpn_config_pki_path}}/{{item.1}} {{openvpn_config_pki_dist_path}}/{{item.0}}/{{ item.1 | basename }}"
