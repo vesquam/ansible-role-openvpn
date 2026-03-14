@@ -1,4 +1,6 @@
 ---
+role_name: "ansible-role-openvpn"
+
 _openvpn_etc: '/etc/openvpn'
 _openvpn_pkgs:
   server:
@@ -17,3 +19,4 @@ openvpn_pki_client_prefix: "client-"
 openvpn_pki_server_prefix: "server-"
 
 openvpn_easyrsa_bin_path: "/usr/share/easy-rsa/3/easyrsa"
+openvpn_temp_dist: "/tmp/"

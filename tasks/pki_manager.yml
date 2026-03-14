@@ -160,19 +160,30 @@
     format: "gz"
   with_items: "{{ dir_dist_list }}"
 
-- name: Copy 
+- name: Create local temp
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: "{{role_name}}_"
+  delegate_to: localhost
+  become: false
+  register: openvpn_temp_dist
+  when: true
+- name: Set local path var
+  ansible.builtin.set_fact:
+    openvpn_temp_dist: "{{openvpn_temp_dist.path}}/"
+
+- name: File list
+  ansible.builtin.debug:
+    msg: "{{ item | dirname }}/{{ item | basename }}.tar.gz"
+  with_items:
+    - "{{ dir_dist_list }}"
+- name: Temp path
+  ansible.builtin.debug:
+    msg: "{{openvpn_temp_dist|default('')}}"
+
+- name: Copy locally to operator
   ansible.builtin.fetch:
-    src: "{{ item| dirname }}/{{ item | basename }}.tar.gz"
-    dest: /tmp/
+    src: "{{ item | dirname }}/{{ item | basename }}.tar.gz"
+    dest: "{{openvpn_temp_dist}}"
     flat: true
   with_items: "{{ dir_dist_list }}"
-
-# - name: Server dist
-#   ansible.builtin.debug:
-#     msg: "cp {{openvpn_config_pki_path}}/{{item.1}} {{openvpn_config_pki_dist_path}}/{{item.0}}/{{ item.1 | basename }}"
-#   loop: "{{openvpn_servers_lst | product(['ta.key','pki/ca.crt', 'pki/dh.pem']) | list}}"
-
-# - name: Server dist cert/key
-#   ansible.builtin.debug:
-#     msg: "cp {{openvpn_config_pki_path}}/pki/{{item.1}}/server-{{ item.0 }}.{{ 'crt' if item.1 == \"issued\" else 'key' }} {{openvpn_config_pki_dist_path}}/{{item.0}}/"
-#   loop: "{{openvpn_servers_lst | product(['issued','private']) | list}}"

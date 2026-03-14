@@ -24,3 +24,8 @@
     - "client"
   when: item in openvpn_role
 
+- name: Clean up
+  ansible.builtin.include_tasks:
+    file: cleanup.yml
+  when: openvpn_pki_manager
+

@@ -1,0 +1,21 @@
+---
+- name: Check if temp dist dir exists
+  ansible.builtin.stat:
+    path: "{{openvpn_temp_dist}}"
+  register: openvpn_temp_dist_stat
+  delegate_to: localhost
+  become: false
+
+- ansible.builtin.debug:
+    msg: 
+     - "{{openvpn_temp_dist}}"
+     - "{{openvpn_temp_dist_stat}}"
+  
+  become: false
+
+- name: Delete temp dist dir
+  ansible.builtin.file:
+    path: "{{openvpn_temp_dist}}"
+    state: absent
+  become: false
+  delegate_to: localhost
