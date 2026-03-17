@@ -13,7 +13,6 @@
     - "{{ openvpn_config_pki_path }}"
     - "{{ openvpn_config_pki_path }}/dist"
 
-
 - name: Init client list
   set_fact:
     openvpn_clients_lst: []
@@ -155,8 +154,8 @@
 
 - name: Archive dist
   community.general.archive:
-    path: "{{ item }}/../"
-    dest: "{{ item| dirname }}/{{ item | basename }}.tar.gz"
+    path: "{{ item }}"
+    dest: "{{ item | dirname }}/{{ item | basename }}.tar.gz"
     format: "gz"
   with_items: "{{ dir_dist_list }}"
 

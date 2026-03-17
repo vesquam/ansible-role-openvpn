@@ -11,6 +11,12 @@
     name: "{{ openvpn_pkgs }}"
     state: present
 
+- name: "Create base [{{ openvpn_name }}] config dir"
+  ansible.builtin.file:
+    path: "{{ openvpn_config_path  }}"
+    state: directory
+  become: true
+
 - name: PKI manager
   ansible.builtin.include_tasks:
     file: pki_manager.yml

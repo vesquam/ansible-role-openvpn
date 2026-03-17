@@ -85,9 +85,9 @@ persist-tun
 # a separate .crt/.key file pair
 # for each client.  A single ca
 # file can be used for all clients.
-ca ca.crt
-cert client.crt
-key client.key
+ca {{ openvpn_client_crypt_ca_path }}
+cert {{ openvpn_client_crypt_cert_path }}
+key {{ openvpn_client_crypt_key_path }}
 
 # Verify server certificate by checking that the
 # certificate has the correct key usage set.
