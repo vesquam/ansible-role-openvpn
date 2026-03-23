@@ -83,9 +83,11 @@ dev {{openvpn_conf_dev}}
 # and use the peer-fingerprint option.
 # See openvpn-examples man page for a
 # configuration example.
-ca ca.crt
-cert server.crt
-key server.key  # This file should be kept secret
+ca {{ openvpn_server_crypt_ca_path }}
+cert {{ openvpn_server_crypt_cert_path }}
+key {{ openvpn_server_crypt_key_path }}
+
+dh {{ openvpn_server_dh_path }}
 
 # Allow to connect to really old OpenVPN versions
 # without AEAD support (OpenVPN 2.3.x or older)
@@ -107,7 +109,7 @@ topology subnet
 # Each client will be able to reach the server
 # on 10.8.0.1. Comment this line out if you are
 # ethernet bridging. See the man page for more info.
-server 10.8.0.0 255.255.255.0
+server {{ openvpn_server_addresse_pool }}
 
 # Maintain a record of client <-> virtual IP address
 # associations in this file.  If OpenVPN goes down or

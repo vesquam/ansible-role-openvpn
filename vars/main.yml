@@ -22,3 +22,7 @@ openvpn_pki_server_prefix: "server-"
 
 openvpn_easyrsa_bin_path: "/usr/share/easy-rsa/3/easyrsa"
 openvpn_temp_dist: "/tmp/"
+
+openvpn_server_addresse_pool: "10.8.0.0 255.255.255.0"
+
+openvpn_temp_dir: "/tmp"

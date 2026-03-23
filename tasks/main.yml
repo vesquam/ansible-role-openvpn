@@ -17,10 +17,20 @@
     state: directory
   become: true
 
+- name: Set pki_master host for later ref
+  ansible.builtin.set_fact:
+    pki_manager: "{{ item }}"
+  with_items: "{{ groups['openvpn']}}"
+  when: hostvars[item]['openvpn_pki_manager']|default(false)
+
 - name: PKI manager
   ansible.builtin.include_tasks:
     file: pki_manager.yml
   when: openvpn_pki_manager
+
+- name: Sync pki_master temp dir to all hosts
+  ansible.builtin.set_fact:
+    openvpn_temp_dist: "{{hostvars[pki_manager].openvpn_temp_dist}}"
 
 - name: Host configuration
   ansible.builtin.include_tasks:
