@@ -1,10 +1,24 @@
 ---
+- name: Validate openvpn required var are set
+  ansible.builtin.assert:
+    fail_msg: "[{{item}}] needs to be defined"
+    success_msg: "[{{item}}] defined"
+    that:
+      - "{{lookup('ansible.builtin.vars', item) is defined}}"
+      - "{{lookup('ansible.builtin.vars', item)|length > 0}}"
+  with_items:
+    - "openvpn_host"
+    - "openvpn_name"
+
 - name: Test variables
   ansible.builtin.debug:
     msg: 
+      - "openvpn_host: {{openvpn_host}}"
+      - "openvpn_name: {{openvpn_name}}"
       - "pkgs: {{openvpn_pkgs}}"
       - "config path: {{openvpn_config_path}}"
       - "config pki path: {{openvpn_config_pki_path}}"
+  when: debug is defined and debug
 
 - name: Install required packages
   ansible.builtin.package:
