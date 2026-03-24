@@ -1,12 +1,8 @@
 ---
 - name: Set variable base
   ansible.builtin.set_fact:
-    openvpn_server_name: "{{ srv_item }}"
-    openvpn_server_crypt_path: "{{ srv_item }}"
-  with_items:
-    - "server-{{ inventory_hostname }}"
-  loop_control:
-    loop_var: srv_item
+    openvpn_server_name: "server-{{ inventory_hostname }}"
+    openvpn_server_crypt_path: "{{ openvpn_name }}"
 - name: Copy PKI artifacts
   ansible.builtin.copy:
     src: "{{ openvpn_temp_dist }}/{{ openvpn_server_name }}.tar.gz"
@@ -22,6 +18,7 @@
     openvpn_server_crypt_ca_path: "{{ openvpn_server_crypt_path }}/ca.crt"
     openvpn_server_crypt_cert_path: "{{ openvpn_server_crypt_path }}/{{ openvpn_server_name }}.crt"
     openvpn_server_crypt_key_path: "{{ openvpn_server_crypt_path }}/{{ openvpn_server_name }}.key"
+    openvpn_server_crypt_ta_key_path: "{{ openvpn_server_crypt_path }}/ta.key"
     openvpn_server_dh_path: "{{ openvpn_server_crypt_path }}/dh.pem"
 - name: Openvpn server config
   ansible.builtin.template:
