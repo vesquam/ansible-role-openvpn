@@ -10,14 +10,14 @@
     - "openvpn_host"
     - "openvpn_name"
 
-- name: Test variables
+- name: Debug variables list
   ansible.builtin.debug:
     msg: 
-      - "openvpn_host: {{openvpn_host}}"
-      - "openvpn_name: {{openvpn_name}}"
-      - "pkgs: {{openvpn_pkgs}}"
       - "config path: {{openvpn_config_path}}"
       - "config pki path: {{openvpn_config_pki_path}}"
+      - "pkgs: {{openvpn_pkgs}}"
+      - "openvpn_host: {{openvpn_host}}"
+      - "openvpn_name: {{openvpn_name}}"
   when: debug is defined and debug
 
 - name: Install required packages
