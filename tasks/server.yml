@@ -15,10 +15,10 @@
     remote_src: yes
 - name: Set client template variables
   ansible.builtin.set_fact:
-    openvpn_server_crypt_ca_path: "{{ openvpn_server_crypt_path }}/ca.crt"
-    openvpn_server_crypt_cert_path: "{{ openvpn_server_crypt_path }}/{{ openvpn_server_name }}.crt"
-    openvpn_server_crypt_key_path: "{{ openvpn_server_crypt_path }}/{{ openvpn_server_name }}.key"
-    openvpn_server_crypt_ta_key_path: "{{ openvpn_server_crypt_path }}/ta.key"
+    openvpn_server_ca_path: "{{ openvpn_server_crypt_path }}/ca.crt"
+    openvpn_server_cert_path: "{{ openvpn_server_crypt_path }}/{{ openvpn_server_name }}.crt"
+    openvpn_server_key_path: "{{ openvpn_server_crypt_path }}/{{ openvpn_server_name }}.key"
+    openvpn_server_ta_key_path: "{{ openvpn_server_crypt_path }}/ta.key"
     openvpn_server_dh_path: "{{ openvpn_server_crypt_path }}/dh.pem"
 - name: Openvpn server config
   ansible.builtin.template:

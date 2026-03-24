@@ -83,10 +83,9 @@ dev {{openvpn_conf_dev}}
 # and use the peer-fingerprint option.
 # See openvpn-examples man page for a
 # configuration example.
-ca {{ openvpn_server_crypt_ca_path }}
-cert {{ openvpn_server_crypt_cert_path }}
-key {{ openvpn_server_crypt_key_path }}
-
+ca {{ openvpn_server_ca_path }}
+cert {{ openvpn_server_cert_path }}
+key {{ openvpn_server_key_path }}
 dh {{ openvpn_server_dh_path }}
 
 # Allow to connect to really old OpenVPN versions
@@ -252,7 +251,7 @@ keepalive 10 120
 # a copy of this key.
 # The second parameter should be '0'
 # on the server and '1' on the clients.
-tls-auth {{ openvpn_server_crypt_ta_key_path }} 0  # This file is secret
+tls-auth {{ openvpn_server_ta_key_path }} 0  # This file is secret
 
 # The maximum number of concurrently connected
 # clients we want to allow.

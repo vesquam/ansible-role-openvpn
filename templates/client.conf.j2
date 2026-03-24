@@ -85,9 +85,9 @@ persist-tun
 # a separate .crt/.key file pair
 # for each client.  A single ca
 # file can be used for all clients.
-ca {{ openvpn_client_crypt_ca_path }}
-cert {{ openvpn_client_crypt_cert_path }}
-key {{ openvpn_client_crypt_key_path }}
+ca {{ openvpn_client_ca_path }}
+cert {{ openvpn_client_cert_path }}
+key {{ openvpn_client_key_path }}
 
 # Verify server certificate by checking that the
 # certificate has the correct key usage set.
@@ -111,7 +111,7 @@ remote-cert-tls server
 
 # If a tls-auth key is used on the server
 # then every client must also have the key.
-tls-auth {{ openvpn_client_crypt_ta_key_path }} 1
+tls-auth {{ openvpn_client_ta_key_path }} 1
 
 # Set log file verbosity.
 verb 3
