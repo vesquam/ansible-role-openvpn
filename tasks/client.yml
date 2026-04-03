@@ -1,6 +1,7 @@
 ---
 - name: Set variable base
   ansible.builtin.set_fact:
+    openvpn_client_service_name: "openvpn-client@{{ openvpn_name }}"
     openvpn_client_name: "client-{{ inventory_hostname }}"
     openvpn_client_crypt_path: "{{ openvpn_name }}"
 
@@ -12,7 +13,7 @@
   ansible.builtin.unarchive:
     src: "{{ openvpn_config_path }}/{{ openvpn_client_name }}.tar.gz"
     dest: "{{ openvpn_config_path }}"
-    extra_opts: ['--strip-components=1']
+    extra_opts: ["--strip-components=1"]
     remote_src: yes
 - name: Set client template variables
   ansible.builtin.set_fact:
@@ -28,3 +29,8 @@
     owner: root
     #group:
     mode: 640
+- name: Systemd start & enable
+  ansible.builtin.systemd_service:
+    name: "{{openvpn_client_service_name}}"
+    state: started
+    enabled: true
