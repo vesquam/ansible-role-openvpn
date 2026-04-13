@@ -39,7 +39,7 @@ proto {{openvpn_conf_proto}}
 # The hostname/IP and port of the server.
 # You can have multiple remote entries
 # to load balance between the servers.
-remote {{openvpn_conf_client_remote_host}} {{openvpn_conf_client_remote_port}}
+remote {{openvpn_client_host}} {{openvpn_client_port}}
 
 # Choose a random host from the remote
 # list for load-balancing.  Otherwise

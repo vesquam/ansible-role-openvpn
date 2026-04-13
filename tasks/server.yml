@@ -31,5 +31,13 @@
 - name: Systemd start & enable
   ansible.builtin.systemd_service:
     name: "{{openvpn_server_service_name}}"
-    state: started
+    state: restarted
     enabled: true
+- name: Open Firewalld port for Openvpn
+  ansible.posix.firewalld:
+    port: "{{openvpn_conf_port}}/{{openvpn_conf_proto}}"
+    zone: "{{openvpn_server_fw_zone}}"
+    state: enabled
+    permanent: true
+    immediate: true
+    offline: true

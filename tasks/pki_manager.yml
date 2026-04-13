@@ -170,7 +170,6 @@
 - name: Set local path var
   ansible.builtin.set_fact:
     openvpn_temp_dist: "{{openvpn_temp_dist.path}}/"
-
 - name: File list
   ansible.builtin.debug:
     msg: "{{ item | dirname }}/{{ item | basename }}.tar.gz"
