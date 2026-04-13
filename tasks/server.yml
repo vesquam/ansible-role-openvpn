@@ -4,6 +4,7 @@
     openvpn_server_service_name: "openvpn-server@{{ openvpn_name }}"
     openvpn_server_name: "server-{{ inventory_hostname }}"
     openvpn_server_crypt_path: "{{ openvpn_name }}"
+    openvpn_server_ipp_path: "{{ openvpn_name }}-ipp.txt"
 - name: Copy PKI artifacts
   ansible.builtin.copy:
     src: "{{ openvpn_temp_dist }}/{{ openvpn_server_name }}.tar.gz"
@@ -21,6 +22,8 @@
     openvpn_server_key_path: "{{ openvpn_server_crypt_path }}/{{ openvpn_server_name }}.key"
     openvpn_server_ta_key_path: "{{ openvpn_server_crypt_path }}/ta.key"
     openvpn_server_dh_path: "{{ openvpn_server_crypt_path }}/dh.pem"
+    openvpn_server_ipp_path: "{{ openvpn_server_ipp_path }}"
+    openvpn_server_status_log: "{{ openvpn_name }}-openvpn-status.log"
 - name: Openvpn server config
   ansible.builtin.template:
     src: server.conf.j2
@@ -28,6 +31,16 @@
     owner: root
     #group:
     mode: 640
+- name: Update IPP file
+  ansible.builtin.lineinfile:
+    path: "{{ openvpn_base_path }}/{{ openvpn_server_ipp_path }}"
+    regexp: "^{{ ipp.name }}"
+    line: "{{ ipp.name }},{{ ipp.ip }},"
+    owner: root
+    mode: 640
+  loop: "{{ openvpn_ipp | default([]) }}"
+  loop_control:
+    loop_var: ipp
 - name: Systemd start & enable
   ansible.builtin.systemd_service:
     name: "{{openvpn_server_service_name}}"
